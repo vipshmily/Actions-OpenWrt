@@ -1,0 +1,60 @@
+name: Nokia-EA0326GMP_UBoot
+
+on: 
+  repository_dispatch:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set +e
+        docker rmi `docker images -q`
+        sudo rm -rf \
+          /usr/share/dotnet \
+          /etc/mysql \
+          /etc/php
+        sudo -E apt-get -y purge \
+          azure-cli \
+          ghc* \
+          zulu* \
+          hhvm \
+          llvm* \
+          firefox \
+          google* \
+          dotnet* \
+          powershell \
+          openjdk* \
+          mysql* \
+          php*
+        sudo -E apt-get update
+        sudo -E apt-get -y install gcc-aarch64-linux-gnu build-essential flex bison libssl-dev
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get clean
+    - name: Clone source code
+      env: 
+        REPO_URL: https://github.com/vipshmily/bl-mt798x
+        REPO_BRANCH: master1
+      run: |
+        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        cd openwrt
+  
+    - name: Compile the UBoot
+      working-directory: ./openwrt
+      run: |
+        SOC=mt7981 BOARD=nokia_ea0326gmp MULTI_LAYOUT=0 ./build.sh
+        echo "FILE_DATE=$(TZ='Asia/Shanghai' date +'%Y.%m.%d-%H%M')" >> $GITHUB_ENV
+        
+    - name : Upload UBoot
+      uses: actions/upload-artifact@main
+      with:
+        name: Nokia-EA0326GMP-uboot-118.5M-${{ env.FILE_DATE }}
+        path: openwrt/output/
