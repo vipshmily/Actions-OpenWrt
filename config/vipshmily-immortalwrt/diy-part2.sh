@@ -22,8 +22,6 @@ sed -i 's/disabled=1/disabled=0/g' package/kernel/mac80211/files/lib/wifi/mac802
 # Modify hostname
 #sed -i 's/OpenWrt/P3TERX-Router/g' package/base-files/files/bin/config_generate
 
-# 修正连接数
-#sed -i '/customized in this file/a net.netfilter.nf_conntrack_max=65536' package/base-files/files/etc/sysctl.conf
-
-# 使用原始最新版本，而不是上游package里面的
+# 添加或更新软件包
 git clone -b v5 https://github.com/sbwml/luci-app-mosdns.git package/mosdns
+git clone https://github.com/kenzok8/openwrt-packages.git package/openwrt-packages

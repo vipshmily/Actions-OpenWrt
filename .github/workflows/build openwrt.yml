@@ -17,17 +17,13 @@ on:
           - 'immortalwrt'
           - 'Lienol'
           - 'padavanonly-immortalwrt'
-          - 'padavanonly-immortalwrt-mt798x'
-          - 'hanwckf-immortalwrt-mt798x'
+          - 'vipshmily-immortalwrt'
       device_model:
         description: '选择型号配置'
         required: false
         default: 'false'
         type: choice
         options:
-          - 'nokia-ea0326gmp'
-          - '360-t7-108m'
-          - '360-t7'
           - 'xiaomi_mi-router-4a-gigabit'
           - 'netgear_r7450'
       ssh_action:
@@ -52,23 +48,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Create a build space mount point
-      run: |
-        sudo mkdir -p /workdir
-        sudo chown $USER:$GROUPS /workdir
-        
-    - name: Maximizing build space
-      uses: easimon/maximize-build-space@master
-      with:
-        root-reserve-mb: 2048
-        swap-size-mb: 1024
-        build-mount-path: /workdir
-        overprovision-lvm: 'true'
-        remove-dotnet: 'true'
-        remove-android: 'true'
-        remove-haskell: 'true'
-        remove-codeql: 'true'
-        remove-docker-images: 'true'
     - name: Checkout
       uses: actions/checkout@main
 
@@ -119,6 +98,24 @@ jobs:
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
 
+    - name: Create simulated physical disk
+      run: |
+        mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
+        root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
+        sudo truncate -s "${mnt_size}"G /mnt/mnt.bin
+        sudo truncate -s "${root_size}"G /root.bin
+        sudo losetup /dev/loop6 /mnt/mnt.bin
+        sudo losetup /dev/loop7 /root.bin
+        sudo pvcreate /dev/loop6
+        sudo pvcreate /dev/loop7
+        sudo vgcreate github /dev/loop6 /dev/loop7
+        sudo lvcreate -n runner -l 100%FREE github
+        sudo mkfs.xfs /dev/github/runner
+        sudo mkdir -p /builder
+        sudo mount /dev/github/runner /builder
+        sudo chown -R runner.runner /builder
+        df -Th
+
     - name: Clone source code [ ${{ inputs.source_branch }} ]
       working-directory: /workdir
       run: |
@@ -137,12 +134,9 @@ jobs:
         elif [ "${{ inputs.source_branch }}" = "padavanonly-immortalwrt" ]; then
               REPO_URL="https://github.com/padavanonly/immortalwrt"
               REPO_BRANCH="master"
-        elif [ "${{ inputs.source_branch }}" = "padavanonly-immortalwrt-mt798x" ]; then
-              REPO_URL="https://github.com/padavanonly/immortalwrt-mt798x"
-              REPO_BRANCH="openwrt-21.02"
-        elif [ "${{ inputs.source_branch }}" = "hanwckf-immortalwrt-mt798x" ]; then
-              REPO_URL="https://github.com/hanwckf/immortalwrt-mt798x"
-              REPO_BRANCH="openwrt-21.02"
+        elif [ "${{ inputs.source_branch }}" = "vipshmily-immortalwrt" ]; then
+              REPO_URL="https://github.com/vipshmily/immortalwrt"
+              REPO_BRANCH="master"
         else
               echo "Unknown source code repository."
               exit 1
@@ -182,7 +176,10 @@ jobs:
     - name: SSH 远程连接（make menuconfig)
       uses: vipshmily/ssh2actions@main
       if: (github.event.inputs.ssh_action == 'true' && github.event.inputs.ssh_action  != 'false') || contains(github.event.action, 'ssh')
-
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          
     - name: Download package
       id: package
       run: |
