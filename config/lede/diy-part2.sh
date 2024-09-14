@@ -25,8 +25,26 @@ sed -i '/CYXluq4wUazHjmCDBCqXF/d' package/lean/default-settings/files/zzz-defaul
 # Modify hostname
 #sed -i 's/OpenWrt/P3TERX-Router/g' package/base-files/files/bin/config_generate
 
-# 添加/删除/更新软件包
-git clone -b v5 https://github.com/sbwml/luci-app-mosdns.git package/mosdns
-git clone https://github.com/kenzok8/openwrt-packages.git package/openwrt-packages
+# 自定义添加/删除/更新软件包
+git clone https://github.com/kenzok8/small-package.git package/small-package
+
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
+
+#rm -rf feeds/luci/applications/luci-app-adbyby-plus
+#git clone https://github.com/kongfl888/luci-app-adbyby-plus-lite.git package/luci-app-adbyby-plus
+
+rm -rf feeds/luci/applications/luci-app-openclash
+rm -rf package/small-package/luci-app-openclash
+git clone --depth=1 -b master https://github.com/vernesong/OpenClash.git package/luci-app-openclash
+
+##-----------------Add OpenClash dev core------------------
+curl -sL -m 30 --retry 2 https://raw.githubusercontent.com/vernesong/OpenClash/core/master/dev/clash-linux-arm64.tar.gz -o /tmp/clash.tar.gz
+tar zxvf /tmp/clash.tar.gz -C /tmp >/dev/null 2>&1
+chmod +x /tmp/clash >/dev/null 2>&1
+mkdir -p package/luci-app-openclash/luci-app-openclash/root/etc/openclash/core
+mv /tmp/clash package/luci-app-openclash/luci-app-openclash/root/etc/openclash/core/clash >/dev/null 2>&1
+rm -rf /tmp/clash.tar.gz >/dev/null 2>&1
+
+##-----------------Manually set CPU frequency for MT7621-----------------
+#sed -i '/"mvebu"\/\*/{n; s/.*/\tcpu_freq="1200MHz" ;;/}' package/emortal/autocore/files/generic/cpuinfo
