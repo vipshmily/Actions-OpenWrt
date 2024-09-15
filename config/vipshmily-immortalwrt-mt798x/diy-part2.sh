@@ -37,8 +37,8 @@ git clone https://github.com/kenzok8/small-package.git package/small-package
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 
-#rm -rf feeds/luci/applications/luci-app-adbyby-plus
-#git clone https://github.com/kongfl888/luci-app-adbyby-plus-lite.git package/luci-app-adbyby-plus
+rm -rf feeds/luci/applications/luci-app-adbyby-plus
+git clone https://github.com/coolsnowwolf/luci.git package/luci-app-adbyby-plus
 
 rm -rf feeds/luci/applications/luci-app-openclash
 rm -rf package/small-package/luci-app-openclash
@@ -53,4 +53,4 @@ mv /tmp/clash package/luci-app-openclash/luci-app-openclash/root/etc/openclash/c
 rm -rf /tmp/clash.tar.gz >/dev/null 2>&1
 
 ##-----------------Manually set CPU frequency for MT7981B-----------------
-#sed -i '/"mediatek"\/\*|\"mvebu"\/\*/{n; s/.*/\tcpu_freq="1680MHz" ;;/}' package/emortal/autocore/files/generic/cpuinfo
+sed -i '/"mediatek"\/\*|\"mvebu"\/\*/{n; s/.*/\tcpu_freq="1680MHz" ;;/}' package/emortal/autocore/files/generic/cpuinfo
