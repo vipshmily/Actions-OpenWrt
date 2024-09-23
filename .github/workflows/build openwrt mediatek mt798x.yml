@@ -219,7 +219,7 @@ jobs:
       run: |
         cd openwrt
         echo -e "$(($(nproc)+4)) thread compile"
-        make -j$(($(nproc)+4)) || make -j1 V=s
+        make -j$(($(nproc)+4)) V=s || make -j1 || make -j1 V=s
         echo "status=success" >> $GITHUB_OUTPUT
         echo "mediatek_mt7981_${{ inputs.DEVICE_MODEL }}" > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
