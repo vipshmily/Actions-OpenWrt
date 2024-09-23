@@ -15,6 +15,7 @@ on:
           - 'vipshmily-immortalwrt-mt798x'
           - 'padavanonly-immortalwrt-mt798x'
           - 'hanwckf-immortalwrt-mt798x'
+          - 'immortalwrt-immortalwrt-mt798x'
       DEVICE_MODEL:
         description: '选择型号配置'
         required: false
@@ -135,13 +136,16 @@ jobs:
       run: |
         if [ "${{ inputs.SOURCE_BRANCH }}" = "vipshmily-immortalwrt-mt798x" ]; then
             REPO_URL="https://github.com/vipshmily/immortalwrt-mt798x"
-            REPO_BRANCH="main5"
+            REPO_BRANCH="main"
         elif [ "${{ inputs.SOURCE_BRANCH }}" = "padavanonly-immortalwrt-mt798x" ]; then
               REPO_URL="https://github.com/padavanonly/immortalwrt-mt798x"
               REPO_BRANCH="openwrt-21.02"
         elif [ "${{ inputs.SOURCE_BRANCH }}" = "hanwckf-immortalwrt-mt798x" ]; then
               REPO_URL="https://github.com/hanwckf/immortalwrt-mt798x"
               REPO_BRANCH="openwrt-21.02"
+        elif [ "${{ inputs.SOURCE_BRANCH }}" = "immortalwrt-immortalwrt-mt798x" ]; then
+              REPO_URL="https://github.com/immortalwrt/immortalwrt"
+              REPO_BRANCH="master"
         else
               echo "Unknown source code repository."
               exit 1
@@ -218,8 +222,8 @@ jobs:
       id: compile
       run: |
         cd openwrt
-        echo -e "$(($(nproc)+4)) thread compile"
-        make -j$(($(nproc)+4)) V=s || make -j1 || make -j1 V=s
+        echo -e "$(($(nproc)+1)) thread compile"
+        make -j$(($(nproc)+1)) || make -j1 || make -j1 V=s
         echo "status=success" >> $GITHUB_OUTPUT
         echo "mediatek_mt7981_${{ inputs.DEVICE_MODEL }}" > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
