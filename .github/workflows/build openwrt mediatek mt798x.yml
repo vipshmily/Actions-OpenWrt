@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       SOURCE_BRANCH:
-        description: '选择源码分支'
+        description: '选择源码'
         required: false
         default: 'vipshmily-immortalwrt-mt798x'
         type: choice
@@ -16,6 +16,16 @@ on:
           - 'padavanonly-immortalwrt-mt798x'
           - 'hanwckf-immortalwrt-mt798x'
           - 'immortalwrt-immortalwrt-mt798x'
+      REPO_BRANCH:
+        description: '选择分支'
+        required: false
+        default: 'main'
+        type: choice
+        options:
+          - 'main'
+          - 'master'
+          - 'openwrt-21.02'
+          - 'openwrt-23.05'
       DEVICE_MODEL:
         description: '选择型号配置'
         required: false
@@ -136,16 +146,16 @@ jobs:
       run: |
         if [ "${{ inputs.SOURCE_BRANCH }}" = "vipshmily-immortalwrt-mt798x" ]; then
             REPO_URL="https://github.com/vipshmily/immortalwrt-mt798x"
-            REPO_BRANCH="main"
+            REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
         elif [ "${{ inputs.SOURCE_BRANCH }}" = "padavanonly-immortalwrt-mt798x" ]; then
               REPO_URL="https://github.com/padavanonly/immortalwrt-mt798x"
-              REPO_BRANCH="openwrt-21.02"
+              REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
         elif [ "${{ inputs.SOURCE_BRANCH }}" = "hanwckf-immortalwrt-mt798x" ]; then
               REPO_URL="https://github.com/hanwckf/immortalwrt-mt798x"
-              REPO_BRANCH="openwrt-21.02"
+              REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
         elif [ "${{ inputs.SOURCE_BRANCH }}" = "immortalwrt-immortalwrt-mt798x" ]; then
               REPO_URL="https://github.com/immortalwrt/immortalwrt"
-              REPO_BRANCH="master"
+              REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
         else
               echo "Unknown source code repository."
               exit 1

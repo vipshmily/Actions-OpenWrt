@@ -6,19 +6,51 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
-      source_branch:
-        description: '选择源码分支'
+      SOURCE_BRANCH:
+        description: '选择源码'
         required: false
-        default: 'false'
+        default: 'vipshmily-immortalwrt-mt798x'
         type: choice
         options:
-          - 'openwrt'
-          - 'lede'
-          - 'immortalwrt'
-          - 'Lienol'
-          - 'padavanonly-immortalwrt'
-          - 'vipshmily-immortalwrt'
-      ssh_action:
+          - 'vipshmily-immortalwrt-mt798x'
+          - 'padavanonly-immortalwrt-mt798x'
+          - 'hanwckf-immortalwrt-mt798x'
+          - 'immortalwrt-immortalwrt-mt798x'
+      REPO_BRANCH:
+        description: '选择分支'
+        required: false
+        default: 'main'
+        type: choice
+        options:
+          - 'main'
+          - 'master'
+          - 'openwrt-21.02'
+          - 'openwrt-23.05'
+      DEVICE_MODEL:
+        description: '选择型号配置'
+        required: false
+        default: 'nokia-ea0326gmp'
+        type: choice
+        options:
+          - 'nokia-ea0326gmp'
+          - '360-t7-108m'
+          - '360-t7'
+      USE_MTWIFI_CFG:
+        description: '使用 mtwifi-cfg 无线控制界面'
+        required: false
+        default: 'false'
+        type: boolean
+      USE_NX30PRO_EEPROM:
+        description: '使用 nx30pro eeprom'
+        required: false
+        default: 'false'
+        type: boolean
+      USE_52MHZ:
+        description: '使用 dts 最大52MHz闪存频率'
+        required: false
+        default: 'false'
+        type: boolean
+      SSH_ACTION:
         description: 'SSH 远程配置固件'
         required: false
         default: 'false'
@@ -88,6 +120,7 @@ jobs:
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
+        echo "filename=${{ DEVICE_MODEL }}-$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
 
     - name: Create simulated physical disk
       run: |
@@ -112,22 +145,22 @@ jobs:
       run: |
         if [ "${{ inputs.source_branch }}" = "openwrt" ]; then
             REPO_URL="https://github.com/openwrt/openwrt"
-            REPO_BRANCH="main"
+            REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
         elif [ "${{ inputs.source_branch }}" = "lede" ]; then
               REPO_URL="https://github.com/coolsnowwolf/lede"
-              REPO_BRANCH="master"
+              REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
         elif [ "${{ inputs.source_branch }}" = "immortalwrt" ]; then
               REPO_URL="https://github.com/immortalwrt/immortalwrt"
-              REPO_BRANCH="master"
+              REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
         elif [ "${{ inputs.source_branch }}" = "Lienol" ]; then
               REPO_URL="https://github.com/Lienol/openwrt"
-              REPO_BRANCH="23.05"
+              REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
         elif [ "${{ inputs.source_branch }}" = "padavanonly-immortalwrt" ]; then
               REPO_URL="https://github.com/padavanonly/immortalwrt"
-              REPO_BRANCH="master"
+              REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
         elif [ "${{ inputs.source_branch }}" = "vipshmily-immortalwrt" ]; then
               REPO_URL="https://github.com/vipshmily/immortalwrt"
-              REPO_BRANCH="master"
+              REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
         else
               echo "Unknown source code repository."
               exit 1
@@ -181,8 +214,10 @@ jobs:
       id: compile
       run: |
         cd openwrt
-        echo -e "$(($(nproc)+1)) thread compile"
-        make -j$(($(nproc)+1)) || make -j1 || make -j1 V=s
+        rm -f .config.old
+        make defconfig
+        mkdir -p /tmp/upload/config
+        ./scripts/diffconfig.sh > /tmp/upload/config/${{ steps.init.outputs.filename }}.config
         echo "status=success" >> $GITHUB_OUTPUT
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
