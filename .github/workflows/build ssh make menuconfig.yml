@@ -9,7 +9,7 @@ on:
       SOURCE_BRANCH:
         description: '选择源码'
         required: false
-        default: 'false'
+        default: 'vipshmily-immortalwrt'
         type: choice
         options:
           - 'openwrt'
