@@ -9,13 +9,15 @@ on:
       SOURCE_BRANCH:
         description: '选择源码'
         required: false
-        default: 'vipshmily-immortalwrt-mt798x'
+        default: 'false'
         type: choice
         options:
-          - 'vipshmily-immortalwrt-mt798x'
-          - 'padavanonly-immortalwrt-mt798x'
-          - 'hanwckf-immortalwrt-mt798x'
-          - 'immortalwrt-immortalwrt-mt798x'
+          - 'openwrt'
+          - 'lede'
+          - 'immortalwrt'
+          - 'Lienol'
+          - 'padavanonly-immortalwrt'
+          - 'vipshmily-immortalwrt'
       REPO_BRANCH:
         description: '选择分支'
         required: false
