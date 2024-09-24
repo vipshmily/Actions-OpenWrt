@@ -53,8 +53,8 @@ on:
 
 env:
   FEEDS_CONF: feeds.conf.default
-  DIY_P1_SH: config/${{ inputs.source_branch }}/diy-part1.sh
-  DIY_P2_SH: config/${{ inputs.source_branch }}/diy-part2.sh
+  DIY_P1_SH: config/${{ inputs.SOURCE_BRANCH }}/diy-part1.sh
+  DIY_P2_SH: config/${{ inputs.SOURCE_BRANCH }}/diy-part2.sh
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
@@ -133,25 +133,25 @@ jobs:
         sudo chown -R runner.runner /builder
         df -Th
 
-    - name: Clone source code [ ${{ inputs.source_branch }} ]
+    - name: Clone source code [ ${{ inputs.SOURCE_BRANCH }} ]
       working-directory: /workdir
       run: |
-        if [ "${{ inputs.source_branch }}" = "openwrt" ]; then
+        if [ "${{ inputs.SOURCE_BRANCH }}" = "openwrt" ]; then
             REPO_URL="https://github.com/openwrt/openwrt"
             REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
-        elif [ "${{ inputs.source_branch }}" = "lede" ]; then
+        elif [ "${{ inputs.SOURCE_BRANCH }}" = "lede" ]; then
               REPO_URL="https://github.com/coolsnowwolf/lede"
               REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
-        elif [ "${{ inputs.source_branch }}" = "immortalwrt" ]; then
+        elif [ "${{ inputs.SOURCE_BRANCH }}" = "immortalwrt" ]; then
               REPO_URL="https://github.com/immortalwrt/immortalwrt"
               REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
-        elif [ "${{ inputs.source_branch }}" = "Lienol" ]; then
+        elif [ "${{ inputs.SOURCE_BRANCH }}" = "Lienol" ]; then
               REPO_URL="https://github.com/Lienol/openwrt"
               REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
-        elif [ "${{ inputs.source_branch }}" = "padavanonly-immortalwrt" ]; then
+        elif [ "${{ inputs.SOURCE_BRANCH }}" = "padavanonly-immortalwrt" ]; then
               REPO_URL="https://github.com/padavanonly/immortalwrt"
               REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
-        elif [ "${{ inputs.source_branch }}" = "vipshmily-immortalwrt" ]; then
+        elif [ "${{ inputs.SOURCE_BRANCH }}" = "vipshmily-immortalwrt" ]; then
               REPO_URL="https://github.com/vipshmily/immortalwrt"
               REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
         else
@@ -166,7 +166,7 @@ jobs:
       uses: klever1988/cachewrtbuild@main
       with:
         ccache: 'true'
-        mixkey: '${{ inputs.source_branch }}'
+        mixkey: '${{ inputs.SOURCE_BRANCH }}'
         prefix: '${{ github.workspace }}/openwrt'
 
     - name: Load custom feeds
@@ -255,7 +255,7 @@ jobs:
         allowUpdates: true
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
-            ${{ env.DEVICE_NAME }}固件，基于${{ inputs.source_branch }}， 编译时间: ${{ env.COMPILE_TIME }}
+            ${{ env.DEVICE_NAME }}固件，基于${{ inputs.SOURCE_BRANCH }}， 编译时间: ${{ env.COMPILE_TIME }}
             Default IP: 192.168.1.1
             Default username: root
             Default password: none/password
