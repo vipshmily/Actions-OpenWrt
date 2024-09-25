@@ -39,12 +39,12 @@ rm -rf package/small-package/luci-app-openclash
 git clone --depth=1 -b master https://github.com/vernesong/OpenClash.git package/luci-app-openclash
 
 ##-----------------Add OpenClash dev core------------------
-curl -sL -m 30 --retry 2 https://raw.githubusercontent.com/vernesong/OpenClash/core/master/dev/clash-linux-arm64.tar.gz -o /tmp/clash.tar.gz
-tar zxvf /tmp/clash.tar.gz -C /tmp >/dev/null 2>&1
-chmod +x /tmp/clash >/dev/null 2>&1
-mkdir -p package/luci-app-openclash/luci-app-openclash/root/etc/openclash/core
-mv /tmp/clash package/luci-app-openclash/luci-app-openclash/root/etc/openclash/core/clash >/dev/null 2>&1
-rm -rf /tmp/clash.tar.gz >/dev/null 2>&1
+#curl -sL -m 30 --retry 2 https://raw.githubusercontent.com/vernesong/OpenClash/core/master/dev/clash-linux-arm64.tar.gz -o /tmp/clash.tar.gz
+#tar zxvf /tmp/clash.tar.gz -C /tmp >/dev/null 2>&1
+#chmod +x /tmp/clash >/dev/null 2>&1
+#mkdir -p package/luci-app-openclash/luci-app-openclash/root/etc/openclash/core
+#mv /tmp/clash package/luci-app-openclash/luci-app-openclash/root/etc/openclash/core/clash >/dev/null 2>&1
+#rm -rf /tmp/clash.tar.gz >/dev/null 2>&1
 
 ##-----------------Manually set CPU frequency for MT7621-----------------
-#sed -i '/"mvebu"\/\*/{n; s/.*/\tcpu_freq="1200MHz" ;;/}' package/emortal/autocore/files/generic/cpuinfo
+sed -i '/"mvebu"\/\*/{n; s/.*/\tcpu_freq="1200MHz" ;;/}' package/emortal/autocore/files/generic/cpuinfo
