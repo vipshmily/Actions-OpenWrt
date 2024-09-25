@@ -43,6 +43,7 @@ git clone https://github.com/coolsnowwolf/luci.git package/luci-app-adbyby-plus
 #git clone --depth=1 -b main https://github.com/kongfl888/luci-app-adbyby-plus-lite.git package/luci-app-adbyby-plus
 
 rm -rf feeds/luci/applications/luci-app-openclash
+rm -rf feeds/smpackage/luci-app-openclash
 rm -rf package/small-package/luci-app-openclash
 git clone --depth=1 -b master https://github.com/vernesong/OpenClash.git package/luci-app-openclash
 
