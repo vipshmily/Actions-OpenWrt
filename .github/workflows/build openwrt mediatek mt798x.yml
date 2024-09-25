@@ -269,7 +269,7 @@ jobs:
 
     - name: Upload firmware to release
       uses: ncipollo/release-action@main
-      if: steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && (!cancelled())
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:
         name: ${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
         tag: v${{ env.FILE_DATE }}
