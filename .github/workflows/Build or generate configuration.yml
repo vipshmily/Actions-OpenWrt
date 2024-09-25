@@ -1,4 +1,4 @@
-name: build ssh make menuconfig
+name: Build or generate configuration
 
 permissions: write-all
 
