@@ -26,7 +26,7 @@ sed -i '/CYXluq4wUazHjmCDBCqXF/d' package/emortal/default-settings/files/99-defa
 #sed -i 's/OpenWrt/P3TERX-Router/g' package/base-files/files/bin/config_generate
 
 # 自定义添加/删除/更新软件包
-git clone https://github.com/kenzok8/small-package.git package/small-package
+#git clone https://github.com/kenzok8/small-package.git package/small-package
 
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/kenzok8/golang feeds/packages/lang/golang

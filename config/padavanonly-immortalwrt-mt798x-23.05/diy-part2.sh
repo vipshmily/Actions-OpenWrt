@@ -29,10 +29,10 @@ sed -i '/customized in this file/a net.netfilter.nf_conntrack_max=65536' package
 cp -f $GITHUB_WORKSPACE/config/vipshmily-immortalwrt-mt798x/mt7981-nokia-ea0326gmp.dts $GITHUB_WORKSPACE/openwrt/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-nokia-ea0326gmp.dts
 
 # 自定义添加/删除/更新软件包
-rm -rf package/istore/luci-app-quickstart
-rm -rf package/istore/luci-app-store
-rm -rf package/istore/quickstart
-git clone https://github.com/kenzok8/small-package.git package/small-package
+#rm -rf package/istore/luci-app-quickstart
+#rm -rf package/istore/luci-app-store
+#rm -rf package/istore/quickstart
+#git clone https://github.com/kenzok8/small-package.git package/small-package
 
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
