@@ -38,7 +38,7 @@ on:
           - 'openwrt-23.05'
       DEVICE_MODEL:
         description: '选择型号'
-        required: true
+        required: false
         default: 'false'
         type: choice
         options:
