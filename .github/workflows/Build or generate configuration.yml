@@ -36,6 +36,17 @@ on:
           - 'master'
           - 'openwrt-21.02'
           - 'openwrt-23.05'
+      DEVICE_MODEL:
+        description: '选择型号'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'nokia-ea0326gmp'
+          - '360-t7-108m'
+          - '360-t7'
+          - 'xiaomi_mi-router-4a-gigabit'
+          - 'netgear_r7450'
       USE_MTWIFI_CFG:
         description: '使用 mtwifi-cfg 无线控制界面'
         required: false
@@ -61,9 +72,11 @@ on:
 
 env:
   FEEDS_CONF: feeds.conf.default
+  CONFIG_FILE: config/${{ inputs.SOURCE_BRANCH }}/${{ inputs.DEVICE_MODEL }}.config
+  DTS_NAME: mt7981-${{ inputs.DEVICE_MODEL }}.dts
   DIY_P1_SH: config/${{ inputs.SOURCE_BRANCH }}/diy-part1.sh
   DIY_P2_SH: config/${{ inputs.SOURCE_BRANCH }}/diy-part2.sh
-  UPLOAD_BIN_DIR: false
+  UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
@@ -76,6 +89,7 @@ jobs:
       uses: actions/checkout@main
 
     - name: Check server configuration
+      if: github.event.inputs.output == 'firmware' && !cancelled()
       run: |
         echo "警告⚠"
         echo "若分配的服务器性能不足，务必及时取消，重新运行！"
@@ -94,6 +108,7 @@ jobs:
         df -Th
 
     - name: Free Disk Space (Ubuntu)
+      if: github.event.inputs.output == 'firmware' && !cancelled()
       uses: jlumbroso/free-disk-space@main
       with:
         # this might remove tools that are actually needed,
@@ -123,6 +138,7 @@ jobs:
         sudo chown $USER:$GROUPS /workdir
 
     - name: Create simulated physical disk
+      if: github.event.inputs.output == 'firmware' && !cancelled()
       run: |
         mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
         root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
@@ -170,6 +186,7 @@ jobs:
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
     - name: Cache
+      if: github.event.inputs.output == 'firmware' && !cancelled()
       uses: klever1988/cachewrtbuild@main
       with:
         ccache: 'true'
@@ -285,7 +302,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
             ${{ env.DEVICE_NAME }}固件，基于${{ inputs.SOURCE_BRANCH }}， 编译时间: ${{ env.COMPILE_TIME }}
-            Default IP: 192.168.1.1
+            Default IP: 192.168.2.1
             Default username: root
             Default password: none/password
           #  插件列表：ddns/filetransfer/OpenClash/SmartDNS/ttyd/adbyby-plus/zerotier/KMS
