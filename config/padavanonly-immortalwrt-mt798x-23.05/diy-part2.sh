@@ -32,7 +32,7 @@ cp -f $GITHUB_WORKSPACE/config/vipshmily-immortalwrt-mt798x/mt7981-nokia-ea0326g
 #rm -rf package/istore/luci-app-quickstart
 #rm -rf package/istore/luci-app-store
 #rm -rf package/istore/quickstart
-git clone https://github.com/kenzok8/openwrt-packages.git package/openwrt-packages
+#git clone https://github.com/kenzok8/openwrt-packages.git package/openwrt-packages
 
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
@@ -43,7 +43,7 @@ git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 #git clone --depth=1 -b main https://github.com/kongfl888/luci-app-adbyby-plus-lite.git package/luci-app-adbyby-plus
 
 rm -rf feeds/luci/applications/luci-app-openclash
-rm -rf feeds/smpackage/luci-app-openclash
+rm -rf feeds/kenzo/luci-app-openclash
 rm -rf package/small-package/luci-app-openclash
 git clone --depth=1 -b master https://github.com/vernesong/OpenClash.git package/luci-app-openclash
 
