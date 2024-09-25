@@ -9,14 +9,14 @@ on:
       output:
         description: '编译固件或生成配置文件'
         required: true
-        type: choice
         default: 'firmware'
+        type: choice
         options:
-          - firmware
-          - config
+          - 'firmware'
+          - 'config'
       SOURCE_BRANCH:
         description: '选择源码'
-        required: false
+        required: true
         default: 'vipshmily-immortalwrt'
         type: choice
         options:
@@ -28,7 +28,7 @@ on:
           - 'vipshmily-immortalwrt'
       REPO_BRANCH:
         description: '选择分支'
-        required: false
+        required: true
         default: 'main'
         type: choice
         options:
@@ -52,7 +52,7 @@ on:
         default: 'false'
         type: boolean
       SSH_ACTION:
-        description: 'SSH 远程配置固件'
+        description: 'SSH connection to Actions'
         required: false
         default: 'false'
         type: boolean
@@ -192,14 +192,17 @@ jobs:
     - name: Load custom configuration
       run: |
         [ -e files ] && mv files openwrt/files
-        #[ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
-    - name: SSH 远程连接（make menuconfig)
-      uses: mxschmitt/action-tmate@master
-      if: (github.event.inputs.ssh_action == 'true' && github.event.inputs.ssh_action  != 'false') || contains(github.event.action, 'ssh')
+    - name: SSH connection to Actions
+      uses: vipshmily/ssh2actions@main
+      if: (github.event.inputs.SSH_ACTION == 'true' && github.event.inputs.SSH_ACTION  != 'false') || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
     
     - name: Generate configuration files
       if: github.event.inputs.output == 'config' && !cancelled()
