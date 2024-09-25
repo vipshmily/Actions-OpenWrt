@@ -37,12 +37,12 @@ on:
           - 'openwrt-21.02'
           - 'openwrt-23.05'
       DEVICE_MODEL:
+        if: github.event.inputs.output == 'firmware' && !cancelled()
         description: '选择型号'
         required: false
         default: 'false'
         type: choice
         options:
-          - ' '
           - 'nokia-ea0326gmp'
           - '360-t7-108m'
           - '360-t7'
@@ -217,7 +217,7 @@ jobs:
 
     - name: SSH connection to Actions
       uses: vipshmily/ssh2actions@main
-      if: (github.event.inputs.SSH_ACTION == 'true' && github.event.inputs.SSH_ACTION  != 'false'&& github.event.inputs.output == 'config') || contains(github.event.action, 'ssh')
+      if: (github.event.inputs.SSH_ACTION == 'true' && github.event.inputs.output == 'config') || contains(github.event.action, 'ssh')
       env:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
