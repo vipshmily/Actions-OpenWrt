@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       source_branch:
-        description: '选择源码分支'
-        required: false
-        default: 'false'
+        description: '选择源码'
+        required: true
+        default: 'vipshmily-immortalwrt'
         type: choice
         options:
           - 'openwrt'
@@ -18,18 +18,29 @@ on:
           - 'Lienol'
           - 'padavanonly-immortalwrt'
           - 'vipshmily-immortalwrt'
+      repo_branch:
+        description: '选择分支'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - 'main'
+          - 'master'
+          - 'openwrt-18.06'
+          - 'openwrt-21.02'
+          - 'openwrt-23.05'
       device_model:
-        description: '选择型号配置'
-        required: false
+        description: '选择型号'
+        required: true
         default: 'false'
         type: choice
         options:
           - 'xiaomi_mi-router-4a-gigabit'
           - 'netgear_r7450'
       ssh_action:
-        description: 'SSH 远程配置固件'
+        description: 'SSH connection to Actions'
         required: false
-        default: 'false'
+        default: false
         type: boolean
   #schedule:
     #- cron:  '30 16 * * 5'
@@ -39,7 +50,7 @@ env:
   CONFIG_FILE: config/${{ inputs.source_branch }}/${{ inputs.device_model }}.config
   DIY_P1_SH: config/${{ inputs.source_branch }}/diy-part1.sh
   DIY_P2_SH: config/${{ inputs.source_branch }}/diy-part2.sh
-  UPLOAD_BIN_DIR: false
+  UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
@@ -116,27 +127,27 @@ jobs:
         sudo chown -R runner.runner /builder
         df -Th
 
-    - name: Clone source code [ ${{ inputs.source_branch }} ]
+    - name: Clone source code [ ${{ inputs.source_branch }}-${{ inputs.repo_branch }} ]
       working-directory: /workdir
       run: |
         if [ "${{ inputs.source_branch }}" = "openwrt" ]; then
             REPO_URL="https://github.com/openwrt/openwrt"
-            REPO_BRANCH="main"
+            REPO_BRANCH="${{ inputs.repo_branch }}"
         elif [ "${{ inputs.source_branch }}" = "lede" ]; then
               REPO_URL="https://github.com/coolsnowwolf/lede"
-              REPO_BRANCH="master"
+              REPO_BRANCH="${{ inputs.repo_branch }}"
         elif [ "${{ inputs.source_branch }}" = "immortalwrt" ]; then
               REPO_URL="https://github.com/immortalwrt/immortalwrt"
-              REPO_BRANCH="master"
+              REPO_BRANCH="${{ inputs.repo_branch }}"
         elif [ "${{ inputs.source_branch }}" = "Lienol" ]; then
               REPO_URL="https://github.com/Lienol/openwrt"
-              REPO_BRANCH="23.05"
+              REPO_BRANCH="${{ inputs.repo_branch }}"
         elif [ "${{ inputs.source_branch }}" = "padavanonly-immortalwrt" ]; then
               REPO_URL="https://github.com/padavanonly/immortalwrt"
-              REPO_BRANCH="master"
+              REPO_BRANCH="${{ inputs.repo_branch }}"
         elif [ "${{ inputs.source_branch }}" = "vipshmily-immortalwrt" ]; then
               REPO_URL="https://github.com/vipshmily/immortalwrt"
-              REPO_BRANCH="master"
+              REPO_BRANCH="${{ inputs.repo_branch }}"
         else
               echo "Unknown source code repository."
               exit 1
@@ -149,7 +160,7 @@ jobs:
       uses: klever1988/cachewrtbuild@main
       with:
         ccache: 'true'
-        mixkey: '${{ inputs.device_model }}'
+        mixkey: '${{ inputs.device_model }}-${{ inputs.repo_branch }}'
         prefix: '${{ github.workspace }}/openwrt'
 
     - name: Load custom feeds
@@ -173,7 +184,7 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
-    - name: SSH 远程连接（make menuconfig)
+    - name: SSH connection to Actions
       uses: vipshmily/ssh2actions@main
       if: (github.event.inputs.ssh_action == 'true' && github.event.inputs.ssh_action  != 'false') || contains(github.event.action, 'ssh')
       env:
@@ -209,7 +220,7 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
-        name: ${{ env.DEVICE_NAME }}_bin_${{ env.FILE_DATE }}
+        name: ${{ env.DEVICE_NAME }}-${{ inputs.repo_branch }}_bin_${{ env.FILE_DATE }}
         path: openwrt/bin
 
     - name: Organize files
@@ -225,21 +236,21 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: OpenWrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
+        name: OpenWrt_firmware_${{ env.DEVICE_NAME }}-${{ inputs.repo_branch }}_${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
 
     - name: Upload firmware to release
       uses: ncipollo/release-action@main
       if: steps.organize.outputs.status == 'success' && env.UPLOAD_RELEASE == 'true' && (!cancelled())
       with:
-        name: ${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
+        name: ${{ env.DEVICE_NAME }}-${{ inputs.repo_branch }}_${{ env.FILE_DATE }}
         tag: v${{ env.FILE_DATE }}
         removeArtifacts: false
         artifacts: ${{ env.FIRMWARE }}/*
         allowUpdates: true
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
-            ${{ inputs.device_model }}固件，基于${{ inputs.source_branch }}， 编译时间: ${{ env.COMPILE_TIME }}
+            ${{ inputs.device_model }}固件，基于${{ inputs.source_branch }}-${{ inputs.repo_branch }}， 编译时间: ${{ env.COMPILE_TIME }}
             Default IP: 192.168.2.1
             Default username: root
             Default password: none/password
