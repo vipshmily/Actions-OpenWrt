@@ -37,9 +37,9 @@ git clone https://github.com/kenzok8/small-package.git package/small-package
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 
-rm -rf feeds/luci/applications/luci-app-adbyby-plus
-rm -rf feeds/net/applications/luci-app-adbyby-plus
-git clone https://github.com/coolsnowwolf/luci.git package/luci-app-adbyby-plus
+#rm -rf feeds/luci/applications/luci-app-adbyby-plus
+#rm -rf feeds/net/applications/luci-app-adbyby-plus
+#git clone https://github.com/coolsnowwolf/luci.git package/luci-app-adbyby-plus
 #git clone --depth=1 -b main https://github.com/kongfl888/luci-app-adbyby-plus-lite.git package/luci-app-adbyby-plus
 
 rm -rf feeds/luci/applications/luci-app-openclash
