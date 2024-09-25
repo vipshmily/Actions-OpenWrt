@@ -121,7 +121,6 @@ jobs:
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-        echo "filename=${{ SOURCE_BRANCH }}-$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
 
     - name: Create simulated physical disk
       run: |
