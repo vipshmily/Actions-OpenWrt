@@ -42,6 +42,7 @@ on:
         default: 'false'
         type: choice
         options:
+          - ' '
           - 'nokia-ea0326gmp'
           - '360-t7-108m'
           - '360-t7'
@@ -216,7 +217,7 @@ jobs:
 
     - name: SSH connection to Actions
       uses: vipshmily/ssh2actions@main
-      if: (github.event.inputs.SSH_ACTION == 'true' && github.event.inputs.SSH_ACTION  != 'false') || contains(github.event.action, 'ssh')
+      if: (github.event.inputs.SSH_ACTION == 'true' && github.event.inputs.SSH_ACTION  != 'false'&& github.event.inputs.output == 'config') || contains(github.event.action, 'ssh')
       env:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -256,7 +257,7 @@ jobs:
       run: |
         cd openwrt
         echo -e "$(($(nproc)+1)) thread compile"
-        make V=s -j$(($(nproc)+1)) || make -j1 || make -j1 V=s
+        make -j$(($(nproc)+1)) || make -j1 || make -j1 V=s
         echo "status=success" >> $GITHUB_OUTPUT
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
