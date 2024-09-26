@@ -66,7 +66,7 @@ env:
   DTS_NAME: mt7981-${{ inputs.DEVICE_MODEL }}.dts
   DIY_P1_SH: config/${{ inputs.SOURCE_BRANCH }}/diy-part1.sh
   DIY_P2_SH: config/${{ inputs.SOURCE_BRANCH }}/diy-part2.sh
-  UPLOAD_BIN_DIR: true
+  UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
@@ -243,8 +243,8 @@ jobs:
         echo -e "$(($(nproc)+4)) thread compile"
         make -j$(($(nproc)+4)) || make -j1 || make -j1 V=s
         echo "status=success" >> $GITHUB_OUTPUT
-        echo "mediatek_mt7981_${{ inputs.DEVICE_MODEL }}" > DEVICE_NAME
-        #grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        #echo "mediatek_mt7981_${{ inputs.DEVICE_MODEL }}" > DEVICE_NAME
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "FILE_DATE=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_ENV
         echo "COMPILE_TIME=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
@@ -257,7 +257,7 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
-        name: ${{ env.DEVICE_NAME }}-${{ inputs.REPO_BRANCH }}_bin_${{ env.FILE_DATE }}
+        name: ${{ inputs.SOURCE_BRANCH }}-${{ inputs.REPO_BRANCH }}-${{ env.DEVICE_NAME }}_bin_${{ env.FILE_DATE }}
         path: openwrt/bin
 
     - name: Organize files
@@ -273,7 +273,7 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: ${{ env.DEVICE_NAME }}-${{ inputs.REPO_BRANCH }}_${{ env.FILE_DATE }}
+        name: ${{ inputs.SOURCE_BRANCH }}-${{ inputs.REPO_BRANCH }}-${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
 
     - name: Upload firmware to release
@@ -287,7 +287,7 @@ jobs:
         allowUpdates: true
         token: ${{ secrets.GITHUB_TOKEN }}
         body: |
-            ${{ inputs.DEVICE_MODEL }}固件，基于${{ inputs.SOURCE_BRANCH }}-${{ inputs.REPO_BRANCH }}， 编译时间: ${{ env.COMPILE_TIME }}
+            ${{ env.DEVICE_NAME }}固件，基于${{ inputs.SOURCE_BRANCH }}-${{ inputs.REPO_BRANCH }}， 编译时间: ${{ env.COMPILE_TIME }}
             Default IP: 192.168.6.1
             Default username: root
             Default password: none
