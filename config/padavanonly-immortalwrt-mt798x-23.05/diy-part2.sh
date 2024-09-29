@@ -29,23 +29,27 @@ sed -i '/customized in this file/a net.netfilter.nf_conntrack_max=65536' package
 cp -f $GITHUB_WORKSPACE/config/vipshmily-immortalwrt-mt798x/mt7981-nokia-ea0326gmp.dts $GITHUB_WORKSPACE/openwrt/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-nokia-ea0326gmp.dts
 
 # 自定义添加/删除/更新软件包
-rm -rf package/istore/luci-app-quickstart
-rm -rf package/istore/luci-app-store
-rm -rf package/istore/quickstart
-git clone https://github.com/kenzok8/small-package.git package/small-package
+#rm -rf package/istore/luci-app-quickstart
+#rm -rf package/istore/luci-app-store
+#rm -rf package/istore/quickstart
+#git clone https://github.com/kenzok8/small-package.git package/small-package
+git clone https://github.com/kiddin9/openwrt-packages.git package/openwrt-packages
 
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 
 #rm -rf feeds/luci/applications/luci-app-adbyby-plus
-#git clone https://github.com/kongfl888/luci-app-adbyby-plus-lite.git package/luci-app-adbyby-plus
+#rm -rf feeds/net/applications/luci-app-adbyby-plus
+#git clone https://github.com/coolsnowwolf/luci.git package/luci-app-adbyby-plus
+#git clone --depth=1 -b main https://github.com/kongfl888/luci-app-adbyby-plus-lite.git package/luci-app-adbyby-plus
 
 rm -rf feeds/luci/applications/luci-app-openclash
+rm -rf package/openwrt-packages/luci-app-openclash
 rm -rf package/small-package/luci-app-openclash
 git clone --depth=1 -b master https://github.com/vernesong/OpenClash.git package/luci-app-openclash
 
 ##-----------------Add OpenClash dev core------------------
-curl -sL -m 30 --retry 2 https://raw.githubusercontent.com/vernesong/OpenClash/core/master/dev/clash-linux-arm64.tar.gz -o /tmp/clash.tar.gz
+curl -sL -m 30 --retry 2 https://raw.githubusercontent.com/vernesong/OpenClash/core/master/meta/clash-linux-arm64.tar.gz -o /tmp/clash.tar.gz
 tar zxvf /tmp/clash.tar.gz -C /tmp >/dev/null 2>&1
 chmod +x /tmp/clash >/dev/null 2>&1
 mkdir -p package/luci-app-openclash/luci-app-openclash/root/etc/openclash/core
@@ -53,4 +57,4 @@ mv /tmp/clash package/luci-app-openclash/luci-app-openclash/root/etc/openclash/c
 rm -rf /tmp/clash.tar.gz >/dev/null 2>&1
 
 ##-----------------Manually set CPU frequency for MT7981B-----------------
-#sed -i '/"mediatek"\/\*|\"mvebu"\/\*/{n; s/.*/\tcpu_freq="1680MHz" ;;/}' package/emortal/autocore/files/generic/cpuinfo
+sed -i '/"mediatek"\/\*|\"mvebu"\/\*/{n; s/.*/\tcpu_freq="1680MHz" ;;/}' package/emortal/autocore/files/generic/cpuinfo
