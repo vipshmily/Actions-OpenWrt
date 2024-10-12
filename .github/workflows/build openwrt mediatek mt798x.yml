@@ -62,7 +62,6 @@ on:
 
 env:
   FEEDS_CONF: feeds.conf.default
-  FEEDS_CONF1: config/${{ inputs.SOURCE_BRANCH }}/feeds.conf.default
   CONFIG_FILE: config/${{ inputs.SOURCE_BRANCH }}/${{ inputs.DEVICE_MODEL }}.config
   DTS_NAME: mt7981-${{ inputs.DEVICE_MODEL }}.dts
   DIY_P1_SH: config/${{ inputs.SOURCE_BRANCH }}/diy-part1.sh
@@ -183,17 +182,10 @@ jobs:
 
     - name: Load custom feeds
       run: |
-        if [ "${{ inputs.REPO_BRANCH }}" = "openwrt-23.05" ]; then
-           [ -e $FEEDS_CONF1 ] && mv $FEEDS_CONF1 openwrt/feeds.conf.default
-           chmod +x $DIY_P1_SH
-           cd openwrt
-           $GITHUB_WORKSPACE/$DIY_P1_SH
-        else
-           [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-           chmod +x $DIY_P1_SH
-           cd openwrt
-           $GITHUB_WORKSPACE/$DIY_P1_SH
-        fi
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P1_SH
 
     - name: Update feeds
       run: cd openwrt && ./scripts/feeds update -a
@@ -209,12 +201,11 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
 
-    #- name: Load custom package
-      #if: github.event.inputs.REPO_BRANCH == 'openwrt-23.05' && !cancelled()
-      #run: |
-        #chmod +x $DIY_P3_SH
-        #cd openwrt/package
-        #$GITHUB_WORKSPACE/$DIY_P3_SH
+    - name: Load custom package
+      run: |
+        chmod +x $DIY_P3_SH
+        cd openwrt/package
+        $GITHUB_WORKSPACE/$DIY_P3_SH
 
     - name: 设置无线控制界面样式
       if: github.event.inputs.USE_MTWIFI_CFG == 'true'
@@ -257,7 +248,7 @@ jobs:
       run: |
         cd openwrt
         echo -e "$(($(nproc)+4)) thread compile"
-        make -j$(($(nproc)+4)) || make -j1 || make -j1 V=s
+        make -j$(($(nproc)+4)) || make -j$(nproc) V=s
         echo "status=success" >> $GITHUB_OUTPUT
         echo "${{ inputs.DEVICE_MODEL }}" > DEVICE_NAME
         #grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME

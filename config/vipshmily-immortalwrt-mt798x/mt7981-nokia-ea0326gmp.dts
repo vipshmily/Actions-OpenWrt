@@ -38,7 +38,7 @@
 			label = "wps || mesh";
 			linux,code = <KEY_WPS_BUTTON>;
 			gpios = <&pio 0 GPIO_ACTIVE_LOW>;
-		};	
+		};
 	};
 
 	gpio-leds {
@@ -69,7 +69,7 @@
 			gpios = <&pio 8 GPIO_ACTIVE_LOW>;
 		};
 
-        led-5 {
+		led-5 {
 			label = "green:wps || mesh";
 			gpios = <&pio 9 GPIO_ACTIVE_LOW>;
 		};
@@ -161,7 +161,8 @@
 			nvmem-cells = <&phy_calibration>;
 			nvmem-cell-names = "phy-cal-data";
 		};
-	switch@0 {
+
+		switch@0 {
 			compatible = "mediatek,mt7531";
 			reg = <31>;
 			reset-gpios = <&pio 39 0>;
@@ -203,7 +204,7 @@
 };
 
 &hnat {
-        mtketh-wan = "eth1";
+	mtketh-wan = "eth1";
 	mtketh-lan = "lan";
 	mtketh-max-gmac = <2>;
 	status = "okay";
