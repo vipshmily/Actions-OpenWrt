@@ -35,7 +35,7 @@ git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 rm -rf package/istore/luci-app-quickstart
 rm -rf package/istore/quickstart
 rm -rf package/istore/luci-app-store
-#git clone https://github.com/kenzok8/small-package.git package/small-package
+git clone https://github.com/kenzok8/small-package.git package/small-package
 
 #rm -rf feeds/luci/applications/luci-app-adbyby-plus
 #rm -rf feeds/net/applications/luci-app-adbyby-plus
