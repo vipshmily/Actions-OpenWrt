@@ -26,10 +26,13 @@ sed -i 's/192.168.1.1/192.168.6.1/g' package/base-files/files/bin/config_generat
 sed -i '/customized in this file/a net.netfilter.nf_conntrack_max=65536' package/base-files/files/etc/sysctl.conf
 
 # 替换编译目录文件
-cp -f $GITHUB_WORKSPACE/config/hanwckf-immortalwrt-mt798x/mt7981-nokia-ea0326gmp.dts $GITHUB_WORKSPACE/openwrt/target/linux/mediatek/files-5.4/arch/arm64/boot/dts/mediatek/mt7981-nokia-ea0326gmp.dts
+cp -f $GITHUB_WORKSPACE/config/immortalwrt-immortalwrt-mt798x/mt7981-nokia-ea0326gmp.dts $GITHUB_WORKSPACE/openwrt/target/linux/mediatek/dts/mt7981-nokia-ea0326gmp.dts
 
 # 自定义添加/删除/更新软件包
-#git clone https://github.com/kenzok8/small-package.git package/small-package
+rm -rf feeds/luci/applications/luci-app-quickstart
+rm -rf feeds/luci/applications/quickstart
+rm -rf feeds/luci/applications/luci-app-store
+#git clone https://github.com/kiddin9/kwrt-packages.git package/kwrt-packages
 
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
@@ -52,4 +55,4 @@ git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 #rm -rf /tmp/clash.tar.gz >/dev/null 2>&1
 
 ##-----------------Manually set CPU frequency for MT7981B-----------------
-sed -i '/"mediatek"\/\*|\"mvebu"\/\*/{n; s/.*/\tcpu_freq="1680MHz" ;;/}' package/emortal/autocore/files/generic/cpuinfo
+sed -i '/"mediatek"\/\*|\"mvebu"\/\*/{n; s/.*/\tcpu_freq="1680MHz" ;;/}' package/emortal/autocore/files/cpuinfo
