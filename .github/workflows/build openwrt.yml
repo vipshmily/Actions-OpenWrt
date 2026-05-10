@@ -58,6 +58,9 @@ env:
 
 jobs:
   build:
+    runs:
+      using: 'node24'
+      main: 'main.js'
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout
