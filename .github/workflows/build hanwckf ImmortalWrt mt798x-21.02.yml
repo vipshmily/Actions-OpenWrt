@@ -64,7 +64,6 @@ on:
     #- cron:  '30 16 * * 5'
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: config/${{ inputs.SOURCE_BRANCH }}/${{ inputs.DEVICE_MODEL }}.config
   DTS_NAME: mt7981-${{ inputs.DEVICE_MODEL }}.dts

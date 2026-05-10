@@ -47,7 +47,6 @@ on:
     #- cron:  '30 16 * * 5'
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: config/${{ inputs.source_branch }}/${{ inputs.device_model }}.config
   DIY_P1_SH: config/${{ inputs.source_branch }}/diy-part1.sh
