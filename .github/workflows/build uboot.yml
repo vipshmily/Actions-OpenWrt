@@ -1,0 +1,102 @@
+name: build uboot
+
+on: 
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      SOURCE_BRANCH:
+        description: '选择源码'
+        required: true
+        default: 'Yuzhii0718/bl-mt798x-dhcpd'
+        type: choice
+        options:
+          - 'Yuzhii0718/bl-mt798x-dhcpd'
+          - 'hanwckf/bl-mt798x'
+      REPO_BRANCH:
+        description: '选择分支'
+        required: true
+        default: 'master'
+        type: choice
+        options:
+          - 'master'
+          - 'main'
+      DEVICE_MODEL:
+        description: '选择型号'
+        required: true
+        default: 'nokia_ea0326gmp'
+        type: choice
+        options:
+          - 'nokia_ea0326gmp'
+          - 'cmcc_rax3000m'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set +e
+        docker rmi `docker images -q`
+        sudo rm -rf \
+          /usr/share/dotnet \
+          /etc/mysql \
+          /etc/php
+        sudo -E apt-get -y purge \
+          azure-cli \
+          ghc* \
+          zulu* \
+          hhvm \
+          llvm* \
+          firefox \
+          google* \
+          dotnet* \
+          powershell \
+          openjdk* \
+          mysql* \
+          php*
+        sudo -E apt-get update
+        sudo -E apt-get -y install gcc-aarch64-linux-gnu build-essential flex bison libssl-dev device-tree-compiler qemu-user-static
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get clean
+    - name: Clone source code
+      run: |
+        if [ "${{ inputs.SOURCE_BRANCH }}" = "Yuzhii0718/bl-mt798x-dhcpd" ]; then
+            REPO_URL="https://github.com/Yuzhii0718/bl-mt798x-dhcpd"
+            REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
+        elif [ "${{ inputs.SOURCE_BRANCH }}" = "hanwckf/bl-mt798x" ]; then
+              REPO_URL="https://github.com/hanwckf/bl-mt798x"
+              REPO_BRANCH="${{ inputs.REPO_BRANCH }}"
+        fi
+        git clone $REPO_URL -b $REPO_BRANCH openwrt
+        cd openwrt
+        if [ "${{ inputs.SOURCE_BRANCH }}" = "Yuzhii0718/bl-mt798x-dhcpd" ]; then
+        sed -i 's/112640k/121344k/g' uboot-mtk-20250711/configs/mt7981_nokia_ea0326gmp_defconfig
+        else
+        sed -i 's/112640k/121344k/g' uboot-mtk-20230718-09eda825/configs/mt7981_nokia_ea0326gmp_defconfig
+        fi
+  
+    - name: Compile the uboot
+      working-directory: ./openwrt
+      run: |
+        SOC=mt7981 BOARD=${{ inputs.DEVICE_MODEL }} MULTI_LAYOUT=0 ./build.sh
+        echo "FILE_DATE=$(TZ='Asia/Shanghai' date +'%Y.%m.%d-%H%M')" >> $GITHUB_ENV
+        
+    - name : Upload uboot
+      uses: actions/upload-artifact@main
+      with:
+        name: ${{ inputs.DEVICE_MODEL }}-uboot_${{ env.FILE_DATE }}
+        path: openwrt/output/
+
+    - name: Upload uboot to release
+      uses: ncipollo/release-action@main
+      with:
+        name: ${{ inputs.DEVICE_MODEL }}-uboot_${{ env.FILE_DATE }}
+        tag: v${{ env.FILE_DATE }}
+        artifacts: openwrt/output/*
+        token: ${{ secrets.GITHUB_TOKEN }}
