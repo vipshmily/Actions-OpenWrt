@@ -59,9 +59,10 @@ env:
 jobs:
   build:   
     runs-on: ubuntu-22.04
-    runs:
-      using: 'node24'
-      main: 'main.js'
+
+    permissions:
+      contents: write
+
     steps:
     - name: Checkout
       uses: actions/checkout@main
