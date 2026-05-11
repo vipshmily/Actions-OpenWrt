@@ -18,3 +18,4 @@
 #echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall' >>feeds.conf.default
 #echo 'src-git small https://github.com/kenzok8/small' >>feeds.conf.default
 #echo 'src-git kwpackages https://github.com/kiddin9/kwrt-packages' >>feeds.conf.default
+git clone https://github.com/GxxkX/hostupdater package/hostupdater
