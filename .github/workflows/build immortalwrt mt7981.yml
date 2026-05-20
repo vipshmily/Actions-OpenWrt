@@ -18,6 +18,7 @@ on:
           - 'padavanonly-immortalwrt-mt798x'
           - 'hanwckf-immortalwrt-mt798x'
           - 'immortalwrt'
+
       REPO_BRANCH:
         description: '选择分支'
         required: true
@@ -33,6 +34,7 @@ on:
           - 'openwrt-24.10'
           - 'openwrt-24.10-6.6'
           - 'openwrt-25.12'
+
       DEVICE_MODEL:
         description: '选择型号'
         required: true
@@ -54,6 +56,7 @@ on:
         required: false
         default: false
         type: boolean
+
   #schedule:
     #- cron:  '30 16 * * 5'
 
@@ -71,7 +74,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: write
@@ -80,23 +83,20 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
 
-    - name: Check server configuration
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
       run: |
-        echo "警告⚠"
-        echo "若分配的服务器性能不足，务必及时取消，重新运行！"
-        echo "已知编译成功CPU型号：8370C,8171M"
-        echo "已知性能不足CPU型号：8272CL"
-        echo -e "-------------- ------------CPU信息------------------------------------------\n"
-        echo "CPU物理数量:$(cat /proc/cpuinfo| grep "physical id"| sort| uniq| wc -l)"
-        echo -e "CPU核心及版本信息：$(cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c) \n"
-        echo "-------------------------------内存信息-------------------------------------------"
-        echo "已安装内存详细信息："
-        sudo lshw -short -C memory | grep GiB
-        echo -e "\n"
-        echo "-----------------------------硬盘信息---------------------------------------------"
-        echo -e  "硬盘数量：$(ls /dev/sd* | grep -v [1-9] | wc -l) \n"
-        echo "硬盘详情："
-        df -Th
+        sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo -E apt-get -yqq update
+        sudo -E apt-get -yqq install curl dos2unix python3-netifaces libfuse-dev
+        sudo bash -c 'bash <(curl -sL https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+        sudo -E apt-get -yqq autoremove --purge
+        sudo -E apt-get -yqq clean
+        sudo timedatectl set-timezone "$TZ"
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
+
     - name: Free Disk Space (Ubuntu)
       uses: jlumbroso/free-disk-space@main
       with:
@@ -112,20 +112,7 @@ jobs:
         docker-images: true
         swap-storage: true
 
-    - name: Initialization environment
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
-        sudo -E apt-get -yqq update
-        sudo -E apt-get -yqq install $(curl -fsSL git.io/depends-ubuntu-2204)
-        #sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
-        sudo -E apt-get -yqq autoremove --purge
-        sudo -E apt-get -yqq clean
-        sudo timedatectl set-timezone "$TZ"
-        sudo mkdir -p /workdir
-        sudo chown $USER:$GROUPS /workdir
-    - name: Create simulated physical disk
+    - name: Create virtual disk for extended storage
       run: |
         mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
         root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
@@ -137,11 +124,13 @@ jobs:
         sudo pvcreate /dev/loop7
         sudo vgcreate github /dev/loop6 /dev/loop7
         sudo lvcreate -n runner -l 100%FREE github
-        sudo mkfs.xfs /dev/github/runner
+        sudo mkfs.xfs -f -i sparse=0 -b size=4096 /dev/github/runner
         sudo mkdir -p /builder
         sudo mount /dev/github/runner /builder
-        sudo chown -R runner.runner /builder
+        sudo chown -R runner:runner /builder
         df -Th
+        echo "status=success" >> ${GITHUB_OUTPUT}
+
     - name: Clone source code [ ${{ inputs.SOURCE_BRANCH }}-${{ inputs.REPO_BRANCH }}-${{ inputs.DEVICE_MODEL }} ]
       working-directory: /workdir
       run: |
@@ -176,6 +165,7 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+
     - name: Cache
       uses: klever1988/cachewrtbuild@main
       with:
@@ -189,11 +179,13 @@ jobs:
         chmod +x $DIY_P1_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
+
     - name: Update and install feeds
       run: |
         cd openwrt
         ./scripts/feeds update -a
         ./scripts/feeds install -a
+
     - name: Load custom configuration
       run: |
         [ -e files ] && mv files openwrt/files
@@ -201,6 +193,7 @@ jobs:
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
+
     #- name: Load custom package
     #  run: |
     #    chmod +x $DIY_P3_SH
@@ -217,6 +210,7 @@ jobs:
         cd openwrt
         cp $GITHUB_WORKSPACE/config/${{ inputs.SOURCE_BRANCH }}/mt79xx_20231229-4012a0_eeprom.tar.xz dl/mt79xx_20231229-4012a0.tar.xz
         cp $GITHUB_WORKSPACE/config/${{ inputs.SOURCE_BRANCH }}/mt79xx_20250408-705eb4_eeprom.tar.xz dl/mt79xx_20250408-705eb4.tar.xz
+
     - name: SSH connection to Actions
       uses: vipshmily/ssh2actions@main
       if: (github.event.inputs.SSH_ACTION == 'true' && github.event.inputs.SSH_ACTION  != 'false') || contains(github.event.action, 'ssh')
@@ -232,6 +226,7 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
+
     - name: Compile the firmware
       id: compile
       run: |
@@ -249,6 +244,7 @@ jobs:
         echo "FILE_DATE=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_ENV
         echo "COMPILE_TIME=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
+
     - name: Check space usage
       if: (!cancelled())
       run: df -hT
@@ -268,6 +264,7 @@ jobs:
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
+
     - name: Upload firmware directory
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
@@ -291,6 +288,7 @@ jobs:
                echo "- 未使用nx30pro高功率eeprom" >> release.txt
         fi
         echo "status=success" >> $GITHUB_OUTPUT
+
     - name: Upload firmware to release
       uses: softprops/action-gh-release@master
       if: steps.tag.outputs.status == 'success' && !cancelled()
@@ -302,7 +300,7 @@ jobs:
         tag_name: v${{ env.FILE_DATE }}
         body_path: release.txt
 
-    - name: Delete old Releases and Workflows
+    - name: Delete old releases and workflows
       uses: ophub/delete-releases-workflows@main
       with:
         gh_token: ${{secrets.GITHUB_TOKEN}}
