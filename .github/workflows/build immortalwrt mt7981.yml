@@ -71,7 +71,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: write
@@ -118,14 +118,14 @@ jobs:
       run: |
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -yqq update
-        sudo -E apt-get -yqq install $(curl -fsSL git.io/depends-ubuntu-2204)
+        sudo -E apt-get -yqq install $(cat depends-ubuntu-2404)
         #sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
         sudo -E apt-get -yqq autoremove --purge
         sudo -E apt-get -yqq clean
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-    - name: Create simulated physical disk
+    - name: Create virtual disk for extended storage
       run: |
         mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
         root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
@@ -137,11 +137,12 @@ jobs:
         sudo pvcreate /dev/loop7
         sudo vgcreate github /dev/loop6 /dev/loop7
         sudo lvcreate -n runner -l 100%FREE github
-        sudo mkfs.xfs /dev/github/runner
+        sudo mkfs.xfs -f -i sparse=0 -b size=4096 /dev/github/runner
         sudo mkdir -p /builder
         sudo mount /dev/github/runner /builder
-        sudo chown -R runner.runner /builder
+        sudo chown -R runner:runner /builder
         df -Th
+        echo "status=success" >> ${GITHUB_OUTPUT}
     - name: Clone source code [ ${{ inputs.SOURCE_BRANCH }}-${{ inputs.REPO_BRANCH }}-${{ inputs.DEVICE_MODEL }} ]
       working-directory: /workdir
       run: |
