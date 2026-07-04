@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    
+    <title></title>
+
+    <script src="../tdx_libs/vue.min.js"></script>
+    <script src="../tdx_libs/jquery.min.js"></script>
+       
+  <link href="./css/page-ex.css" rel="stylesheet"><link href="./css/vender.css" rel="stylesheet"></head>
+
+  <body>
+    
+    <script>
+      var JsUrl = {}
+      ;(function () {
+        document.documentElement.focus()
+        let parstr = window.location.href.split('?')[1]
+        JsUrl['parstr'] = parstr
+        if (typeof parstr !== 'undefined') {
+          let arr = parstr.split('&')
+          for (let i = 0; i < arr.length; i++) {
+            JsUrl[arr[i].split('=')[0]] = arr[i].split('=')[1]
+          }
+        }
+        if (JsUrl['color'] == '0') {
+          JsUrl['style'] = 'black'
+          document.documentElement.style.setProperty('--fillBase', '#000');
+        } else {
+          JsUrl['style'] = 'white'
+          document.documentElement.style.setProperty('--fillBase', '#fff');
+        }
+
+        if (JsUrl['style'] == 'white') {
+          document
+            .getElementsByTagName('html')[0]
+            .setAttribute('class', 'white')
+        } else {
+          document
+            .getElementsByTagName('html')[0]
+            .setAttribute('class', 'black')
+        }
+
+        JsUrl['dirhtml'] =
+          JsUrl['dev'] == 0
+            ? 'http://' + window.document.location['host'] + '/'
+            : 'http://' + window.document.location['host'] + '/site/'
+      })()
+     
+      if (
+        typeof JsUrl['bkcolor'] !== 'undefined' &&JsUrl['color']=="0"&&
+        JsUrl['bkcolor'].indexOf('tdxbkcolor') == '-1'
+      ) {
+        document.documentElement.style.setProperty('--fillBase', '#' + JsUrl['bkcolor']);
+        // document.getElementsByTagName('body')[0].style.background =
+        //   '#' + JsUrl['bkcolor']
+      }
+    </script>
+     
+    <div id="app"></div>
+  <script type="text/javascript" src="js/page-ex.js"></script><script type="text/javascript" src="js/vender.js"></script></body>
+</html>

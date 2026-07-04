@@ -1,0 +1,35 @@
+@font-face {
+  font-family: "js-iconfont"; /* Project id 4156775 */
+  src: url('iconfont.woff2?t=1688720667132') format('woff2'),
+       url('iconfont.woff?t=1688720667132') format('woff'),
+       url('iconfont.ttf?t=1688720667132') format('truetype');
+}
+
+.js-iconfont {
+  font-family: "js-iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-btn_jy_b2:before {
+  content: "\e603";
+}
+
+.icon-btn_jy_s:before {
+  content: "\e604";
+}
+
+.icon-btn_jy_s2:before {
+  content: "\e605";
+}
+
+.icon-btn_jy_b:before {
+  content: "\e606";
+}
+
+.icon-btn_jy_t:before {
+  content: "\e607";
+}
+

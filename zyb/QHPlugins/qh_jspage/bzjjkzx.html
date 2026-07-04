@@ -1,0 +1,79 @@
+﻿<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body scroll="no" style="overflow:hidden;">
+
+<p id="load">正在自动登录，请稍后...</p>
+
+<div style="display:none;">
+<form id="form" method="post" action="">
+<input type="hidden" id="companyID" name="companyID" value=""/>
+<input type="hidden" id="userid" name="userid" value=""/>
+<input type="hidden" id="keyid" name="keyid" value=""/>
+<input type="hidden" id="passwd" name="passwd" value=""/>
+</form>
+</div>
+
+<script>
+
+Debug=0;//0-不调试 1-调试
+Num=5;//参数个数
+
+function g(id){return document.getElementById(id);}
+function dw(s){document.write(s);}
+function go(){g("form").submit();}
+
+var loadTip=g("load");
+
+(function(){
+	
+	Parms=window.location.href;
+	Parms=unescape(Parms);
+	var loc=Parms.lastIndexOf("?");
+	if(loc==-1){
+		loadTip.innerHTML="参数为空（-1）";
+		return;
+	}
+	Parms=Parms.substr(loc+1);
+	if(Parms.indexOf("|")==-1){
+		loadTip.innerHTML="参数格式传入错误（-1）";
+		return;
+	}
+	Parms=Parms.split("|");
+	if(Parms.length<Num){
+		loadTip.innerHTML="参数个数不正确（-1）";
+		return;
+	}
+
+	var L=Parms.length;
+	var action=Parms[L-5];
+
+	g("passwd").value=Parms[L-1];
+	g("keyid").value=Parms[L-2];
+	g("userid").value=Parms[L-3];
+	g("companyID").value=Parms[L-4];
+	if(action.toLowerCase().indexOf("http")!=0)	{
+		loadTip.innerHTML="action参数应以http开头（-1）";
+		return;
+	}
+	g("form").action=action;
+
+	if(Debug){
+		dw("<p>action="+Parms[L-5]+"</p>");
+		dw("<p>companyID="+Parms[L-4]+"</p>");
+		dw("<p>userid="+Parms[L-3]+"</p>");
+		dw("<p>keyid="+Parms[L-2]+"</p>");
+		dw("<p>passwd="+Parms[L-1]+"</p>");
+		dw("<p><a href='#' onclick='go();return false;'>继续>></a></p>");
+		return;
+	}
+	
+	go();
+
+})();
+
+</script>
+
+</body>
+<html>
