@@ -1,0 +1,68 @@
+{
+    "pages": [
+        "local://page-main.html"
+    ],
+    "tabBar": {
+        "list": [{
+            "tabId": "shouye",
+            "pagePath": "local://page-main.html",
+            "text": "编辑笔记",
+			"iconPath": "local://default.png",
+            "selectedIconPath": "local://default.png",
+            "toolBar": "toolBar.default",
+            "pullMode": 0
+        }]
+    },
+	
+	"toolBar": {
+		"toolSavebox":{
+			"colorSet":"",
+			"sizeSet":"",
+			"list":[{"width":"","text":"","name":"Back","position":"left"},
+				{"width":"","text":"","name":"Title","position":"center"}
+				],
+			"layoutMode":"linear"
+		},
+		"default": {
+            "colorSet": "",
+            "sizeSet": "",
+            "list": [
+                {
+                    "width": "",
+                    "text": "",
+                    "name": "Back",
+                    "position": "left"
+                },
+                {
+                    "width": "",
+                    "text": "",
+                    "name": "Title",
+                    "position": "center"
+                },
+                {
+                    "width": "",
+                    "text": "保存",
+                    "name": "",
+                    "position": "right",
+                    "icon": "",
+                    "response": "SaveBJ"
+                }
+            ],
+            "layoutMode": "linear"
+        }
+    },
+    "findModal":{
+           "default":{
+                    "tabs":["tabStock","tabZx","tabWenDa"],
+                    "select_tab":"tabZx",
+                    "placeHolder":"请输入股票/首字母/问句"
+            }
+           ,
+           "find1":{
+                    "tabs":["tabStock","tabWenda","tabStragefy","tabIndex","tabFunc"],
+                    "init_style":"1",
+                    "select_tab":"tabZh",
+                    "placeHolder":"有问必达，你想找的，都在这里~"
+          }
+        }
+}

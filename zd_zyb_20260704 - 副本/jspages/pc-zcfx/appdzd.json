@@ -1,0 +1,98 @@
+  {
+    "pages": [
+	"local://dzd.html"
+    ],
+    "tabBar": {
+        "list": [{
+            "tabId": "dzd",
+            "pagePath": "local://dzd.html",
+            "text": "对账单",
+			"iconPath": "local://default.png",
+            "selectedIconPath": "local://default.png",
+            "toolBar": "toolBar.default2",
+			"params":{"JYWebView":"true"},
+			"pullmode":0
+			
+        }]
+    },
+	
+	"toolBar": {
+		"default":{
+            "colorSet": "",
+            "sizeSet": "",
+            "list": [{
+                    "width": "",
+                    "text": "",
+                    "name": "Back",
+                    "position": "left"
+                },
+                {
+                    "width": "",
+                    "text": "",
+                    "name": "Title",
+                    "position": "center"
+                },
+                {
+                    "width": "",
+                    "text": "",
+                    "name": "More",
+                    "position": "right"
+                }
+            ],
+            "layoutMode": "linear"
+        },
+		"default1":{
+            "colorSet": "",
+            "sizeSet": "",
+            "list": [{
+                    "width": "",
+                    "text": "",
+                    "name": "Back",
+                    "position": "left"
+                },
+                {
+                    "width": "",
+                    "text": "持仓明细",
+                    "name": "ccmx",
+                    "position": "center"
+                },
+                {
+                    "width": "",
+                    "text": "更多建仓",
+                    "name": "gdjc",
+                    "position": "right",
+					"response": "tdxJumpMoreJc"
+					
+                }
+            ],
+            "layoutMode": "linear"
+        },
+		"default2":{
+            "colorSet": "",
+            "sizeSet": "",
+            "list": [{
+                    "width": "",
+                    "text": "",
+                    "name": "Back",
+                    "position": "left"
+                },
+                {
+                    "width": "",
+                    "text": "对账单",
+                    "name": "dzd",
+                    "position": "center"
+                },
+                {
+                    "width": "",
+                    "text": "",
+					"icon": "skinimages/##color##/topbar_sjgl.png",
+                    "name": "sjgl",
+                    "position": "right",
+					"response": "tdxJumpMoreSet"
+					
+                }
+            ],
+            "layoutMode": "linear"
+        }
+			}
+}

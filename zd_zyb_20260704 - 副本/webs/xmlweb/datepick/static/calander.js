@@ -1,0 +1,1 @@
+let worktime={holiday:{},closeMarket:[],normalHoliday:{},normalLunar:{},normalHolidayEx:{}};
