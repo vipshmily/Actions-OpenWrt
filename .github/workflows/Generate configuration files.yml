@@ -50,6 +50,11 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
+
+    permissions:
+      contents: write
+      actions: write
+
     - name: Checkout
       uses: actions/checkout@main
 
@@ -144,17 +149,13 @@ jobs:
         name: ${{ inputs.SOURCE_BRANCH }}-${{ inputs.REPO_BRANCH }}${{ env.DEVICE_NAME }}-config-${{ env.FILE_DATE }}
         path: /tmp/upload
 
-    - name: Delete workflow runs
-      uses: Mattraks/delete-workflow-runs@main
+    - name: Delete old releases and workflows
+      uses: ophub/delete-releases-workflows@main
       with:
-        retain_days: 0
-        keep_minimum_runs: 2
-
-    - name: Remove old Releases
-      uses: dev-drprasad/delete-older-releases@master
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-      with:
-        keep_latest: 5
+        delete_releases: true
+        releases_keep_latest: 10
+        releases_keep_keyword: "v0/server_/kernel_"
         delete_tags: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        delete_workflows: true
+        workflows_keep_day: 30
+        gh_token: ${{secrets.GITHUB_TOKEN}}
