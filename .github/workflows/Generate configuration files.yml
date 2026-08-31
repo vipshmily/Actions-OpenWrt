@@ -49,11 +49,12 @@ env:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    steps:
 
     permissions:
       contents: write
       actions: write
+
+    steps:
 
     - name: Checkout
       uses: actions/checkout@main
